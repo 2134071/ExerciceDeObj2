@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace jeuDes
+﻿namespace jeuDes
 {
     internal class Controleur
     {
@@ -13,8 +7,12 @@ namespace jeuDes
         public const int MaxDes = 5;
         public const int MaxJoueur = 3;
         private De[] _lesDesDuJeu = new De[MaxDes];
-        private Joueur[]_lesJoueurDuJeu = new Joueur[MaxJoueur];
+        private Joueur[] _lesJoueurDuJeu = new Joueur[MaxJoueur];
         public int JoueurCourant = 0;
+        private int _nombreTours = 1;
+        public int NombreTours => _nombreTours;
+        public event EventHandler JoueurCourantChange;
+        public event EventHandler<FinPartieEventArgs> PartieTerminee;
         public Controleur()
         {
             // Création de dés avec valeurs particulières
@@ -23,19 +21,13 @@ namespace jeuDes
             _lesDesDuJeu[2] = new De(2, 4, 6, 8, 10, 12);
             _lesDesDuJeu[3] = new De(2, 4, 6, 8, 10, 12);
             _lesDesDuJeu[4] = new De(2, 4, 6, 8, 10, 12);
-            _lesJoueurDuJeu[0]=new Joueur("Joueur 1",0);
-            _lesJoueurDuJeu[1]=new Joueur("Joueur 2",0);
-            _lesJoueurDuJeu[2]=new Joueur("Joueur 3",0);
+            _lesJoueurDuJeu[0] = new Joueur("Joueur 1", 0);
+            _lesJoueurDuJeu[1] = new Joueur("Joueur 2", 0);
+            _lesJoueurDuJeu[2] = new Joueur("Joueur 3", 0);
         }
-
         // Ce n'est pas une copie du dé qui est retournée mais le dé en tant que tel (type référence)
         public De ObtenirDe(int indice)
         {
-            if (indice < 0 || indice > (MaxDes - 1))
-            {
-                throw new Exception("Les dés du jeu : Indice hors limites!");
-            }
-
             return _lesDesDuJeu[indice];
         }
         public void AjouterPointDe()
@@ -51,11 +43,24 @@ namespace jeuDes
         public void PasserAuJoueurSuivant()
         {
             JoueurCourant = (JoueurCourant + 1) % MaxJoueur;
+            if (JoueurCourant == 0)
+            {
+                _nombreTours++;
+            }
+            OnJoueurCourantChange();
         }
+
+        protected virtual void OnJoueurCourantChange()
+        {
+            JoueurCourantChange?.Invoke(this, EventArgs.Empty);
+        }
+
         public void AjouterPoint(int sommeDes)
         {
-          _lesJoueurDuJeu[JoueurCourant].AdditionnerPoints(sommeDes);
+            _lesJoueurDuJeu[JoueurCourant].AdditionnerPoints(sommeDes);
+            VerifierFinJeu();
         }
+
         public Joueur ObtenirJoueur(int joueur)
         {
             if (joueur < 0 || joueur > (MaxJoueur - 1))
@@ -65,14 +70,25 @@ namespace jeuDes
 
             return _lesJoueurDuJeu[joueur];
         }
+
         public bool isGagnant()
         {
-            if (_lesJoueurDuJeu[JoueurCourant].Points>=100)
+            if (_lesJoueurDuJeu[JoueurCourant].Points >= 100)
             {
                 return true;
             }
             return false;
         }
+        private void VerifierFinJeu()
+        {
+            if (isGagnant())
+            {
+                var gagnant = ObtenirJoueur(JoueurCourant);
+                var finPartieEventArgs = new FinPartieEventArgs(_nombreTours, gagnant.Nom);
+                PartieTerminee?.Invoke(this, finPartieEventArgs);
+            }
+        }
+
         public int ObtenirDeFace(int indiceDe, int indiceFace)
         {
             try
@@ -108,6 +124,17 @@ namespace jeuDes
             {
                 de.Brasser();
             }
+        }
+    }
+    public class FinPartieEventArgs : EventArgs
+    {
+        public int NombreTours { get; }
+        public string NomGagnant { get; }
+
+        public FinPartieEventArgs(int nombreTours, string nomGagnant)
+        {
+            NombreTours = nombreTours;
+            NomGagnant = nomGagnant;
         }
     }
 }

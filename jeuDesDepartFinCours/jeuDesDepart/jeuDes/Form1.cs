@@ -3,14 +3,80 @@ namespace jeuDes
     public partial class Form1 : Form
     {
         Controleur leJeu = new Controleur();
-
         public Form1()
         {
-            InitializeComponent(); 
+            InitializeComponent();
             AfficherLesJoueurs();
+            AbonnerEvenementDes();
+            AbonnerJoueur();
+            AbonnerJoueurCourant();
+            FinirPartie();
             AfficherLesDes();
             AfficherJoueurCourant();
-           
+        }
+
+        private void FinirPartie()
+        {
+            leJeu.PartieTerminee += LeJeu_PartieTerminee;
+        }
+
+        private void LeJeu_PartieTerminee(object? sender, FinPartieEventArgs e)
+        {
+            MessageBox.Show(Text = "Le joueur " + e.NomGagnant + " a gagné! en " + e.NombreTours + " tours!");
+            this.Close();
+        }
+
+        private void AbonnerJoueurCourant()
+        {
+            leJeu.JoueurCourantChange += LeJeu_JoueurCourantChange;
+        }
+
+        private void LeJeu_JoueurCourantChange(object sender, EventArgs e)
+        {
+            AfficherJoueurCourant();
+        }
+
+        private void AbonnerJoueurrantChange(object sender, EventArgs e)
+        {
+            AfficherJoueurCourant();
+        }
+
+        private void AbonnerJoueur()
+        {
+            for (int cpt = 0; cpt < Controleur.MaxJoueur; cpt++)
+            {
+                Joueur joueur = leJeu.ObtenirJoueur(cpt);
+                joueur.PointsChange += Joueur_PointsChange;
+            }
+        }
+
+        private void Joueur_PointsChange(object sender, EventArgs e)
+        {
+            AfficherPoints();
+        }
+
+        ~Form1()
+        {
+            DesabonnerEvenementDes();
+        }
+
+        private void DesabonnerEvenementDes()
+        {
+
+        }
+
+        private void AbonnerEvenementDes()
+        {
+            for (int cpt = 0; cpt < Controleur.MaxDes; cpt++)
+            {
+                De de = leJeu.ObtenirDe(cpt);
+                de.ChangementDeValeur += De_ChangementDeValeur;
+            }
+        }
+
+        private void De_ChangementDeValeur(object? sender, EventArgs e)
+        {
+            AfficherLesDes();
         }
 
         private void btnBrasser_Click(object sender, EventArgs e)
@@ -22,13 +88,6 @@ namespace jeuDes
                 de.Brasser();
             }
             leJeu.AjouterPointDe();
-            AfficherLesDes();
-            AfficherPoints();
-            if (leJeu.isGagnant())
-            {
-                MessageBox.Show(Text = "Le joueur " + leJeu.ObtenirJoueur(leJeu.JoueurCourant).Nom + " a gagné!");
-                this.Close();
-            }
             InverserBoutons();
         }
 
@@ -96,7 +155,6 @@ namespace jeuDes
         private void btnJoueurSuivant_Click(object sender, EventArgs e)
         {
             leJeu.PasserAuJoueurSuivant();
-            AfficherJoueurCourant();
             InverserBoutons();
         }
         void InverserBoutons()

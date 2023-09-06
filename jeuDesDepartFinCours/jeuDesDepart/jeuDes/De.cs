@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace jeuDes
+﻿namespace jeuDes
 {
-    internal class De
+    public class De
     {
         // Atributs
         private int[] _facesDe;
         private int _valeurDe;
 
+        public event EventHandler? ChangementDeValeur;
         // STATIC
         // Le _generateurNombre est le même pour tous les objets de type De.
         // On parle ici d'un attribut de classe (appartient à la classe et non aux objets).
@@ -27,6 +22,20 @@ namespace jeuDes
             get { return GetValeurDe(); }
             // set reçoit une valeur du type de la propriété nommée value.
             // set { SetValeurDe(value); }
+        }
+
+        public void VerifierEvenement(int valeurPrecedente)
+        {
+            ChangementValeur(valeurPrecedente);
+        }
+
+        private void ChangementValeur(int valeurPrecedente)
+        {
+            if (valeurPrecedente != this.ValeurDe)
+            {
+                ChangementDeValeur?.Invoke(this, EventArgs.Empty);
+            }
+
         }
 
         // Si on ne lie pas la propriété à un attribut, alors le compilateur va en générer un.
@@ -56,7 +65,6 @@ namespace jeuDes
 
         private int GetValeurDe()
         {
-
             return _valeurDe;
         }
 
@@ -87,9 +95,11 @@ namespace jeuDes
         // Tell, Don't Ask
         public void Brasser()
         {
+            int anciennevaleur = _valeurDe;
             int faceAleatoire = _generateurNombre.Next(6);
-            
+
             _valeurDe = _facesDe[faceAleatoire];
+            VerifierEvenement(anciennevaleur);
         }
 
         public void Selectionner()
