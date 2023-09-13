@@ -53,11 +53,6 @@ void LeJeu_JoueurCourantChange(object sender, EventArgs e)
     AfficherJoueurCourant();
 }
 
-void AbonnerJoueurrantChange(object sender, EventArgs e)
-{
-    AfficherJoueurCourant();
-}
-
 void AbonnerJoueur()
 {
     for (int cpt = 0; cpt < Controller.MaxJoueur; cpt++)
@@ -88,12 +83,7 @@ void De_ChangementDeValeur(object? sender, EventArgs e)
 
 void Brasser()
 {
-    De de;
-    for (int cpt = 0; cpt < Controller.MaxDes; cpt++)
-    {
-        de = leJeu.ObtenirDe(cpt);
-        de.Brasser();
-    }
+    leJeu.BrasserLesDes();
     leJeu.AjouterPointDe();
 }
 

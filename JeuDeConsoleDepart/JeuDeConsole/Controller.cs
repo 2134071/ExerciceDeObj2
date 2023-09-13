@@ -60,7 +60,6 @@
             _lesJoueurDuJeu[JoueurCourant].AdditionnerPoints(sommeDes);
             VerifierFinJeu();
         }
-
         public Joueur ObtenirJoueur(int joueur)
         {
             if (joueur < 0 || joueur > (MaxJoueur - 1))
